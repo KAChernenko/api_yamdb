@@ -4,8 +4,8 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -15,7 +15,8 @@ from .mixins import ModelMixinSet
 from .permissions import IsRoleAdminOrSuperuser, Title, Review
 from .serializers import (SignupSerializer, TokenSerializer, UserSerializer,
                           GenreSerializer, CategorySerializer, TitleSerializer,
-                          TitleCreateSerializer, ReviewsSerializer, CommentsSerializer
+                          AdminUserSerializer, TitleCreateSerializer, ReviewsSerializer, 
+                          CommentsSerializer
                           )
 
 from api_yamdb.settings import ADMIN_EMAIL
@@ -49,6 +50,35 @@ class CommentsViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         review = get_object_or_404(title.reviews, id=self.kwargs.get('review_id'))
         serializer.save(review=review)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    Доступ только у администратора
+    """
+    queryset = User.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = (IsRoleAdminOrSuperuser,)
+    filter_backends = (SearchFilter,)
+    lookup_field = 'username'
+    lookup_value_regex = r'[\w\@\.\+\-]+'
+    search_fields = ('username',)
+
+    @action(
+        detail=False, methods=['get', 'patch'],
+        url_path='me', url_name='me',
+        permission_classes=(IsAuthenticated,)
+    )
+    def about_me(self, request):
+        serializer = UserSerializer(request.user)
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GenreViewSet(ModelMixinSet):
