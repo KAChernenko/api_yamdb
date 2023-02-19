@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'api',
+    'reviews',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +86,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Использовать эту модель
+
+AUTH_USER_MODEL = 'rewiews.User'
 
 # Установка способа аутентификации по токену
 
