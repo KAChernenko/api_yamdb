@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core import validators
 
 from .validators import validate_year
 
@@ -125,3 +126,43 @@ class Title(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Reviews(models.Model):
+    text = models.TextField(
+        max_length=1024,
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='reviews',
+        on_delete=models.CASCADE,
+    )
+    score = models.IntegerField(
+        validators=(
+            validators.MaxValueValidator(10),
+            validators.MinValueValidator(1),
+        )
+    )
+    pub_date = models.DateTimeField()
+    title = models.ForeignKey(
+        Title,
+        related_name='reviews',
+        on_delete=models.CASCADE
+    )
+
+
+class Comments(models.Model):
+    text = models.TextField(
+        max_length=512,
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='comments',
+        on_delete=models.CASCADE
+    )
+    pub_date = models.DateTimeField()
+    review = models.ForeignKey(
+        Reviews,
+        related_name='comments',
+        on_delete=models.CASCADE
+    )
