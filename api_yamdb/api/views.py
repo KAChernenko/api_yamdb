@@ -12,8 +12,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
+from .permissions import IsRoleAdminOrSuperuser, Title
+from .serializers import (SignupSerializer, TokenSerializer, UserSerializer,
+                          GenreSerializer, CategorySerializer, TitleSerializer,
+                          TitleCreateSerializer
+                          )
 from .permissions import IsRoleAdminOrSuperuser
-from .serializers import SignupSerializer, TokenSerializer, UserSerializer, GenreSerializer, CategorySerializer, TitleSerializer, TitleCreateSerializer
 from api_yamdb.settings import ADMIN_EMAIL
 from reviews.models import User, Genre, Category, Title
 
