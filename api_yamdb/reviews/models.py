@@ -11,10 +11,6 @@ ROLE = (
 
 class User(AbstractUser):
     """Модель для работы с пользователями"""
-    username = models.CharField(
-        max_length=200,
-        unique=True
-    )
     email = models.EmailField(
         unique=True,
         max_length=255,
@@ -30,11 +26,6 @@ class User(AbstractUser):
         choices=ROLE,
         default='user',
         verbose_name='Роль'
-    )
-    password = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True
     )
 
     class Meta:
