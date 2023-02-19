@@ -45,7 +45,7 @@ class Genre(models.Model):
         return self.name
     
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name='Название произведения'
