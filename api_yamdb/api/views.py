@@ -3,13 +3,17 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .filters import TitleFilter
 from .mixins import ModelMixinSet
-from .serializers import SignupSerializer, TokenSerializer, UserSerializer, GenreSerializer, CategorySerializer, TitleSerializer
+from .permissions import IsRoleAdminOrSuperuser
+from .serializers import SignupSerializer, TokenSerializer, UserSerializer, GenreSerializer, CategorySerializer, TitleSerializer, TitleCreateSerializer
 from api_yamdb.settings import ADMIN_EMAIL
 from reviews.models import User, Genre, Category, Title
 
@@ -17,15 +21,32 @@ from reviews.models import User, Genre, Category, Title
 class GenreViewSet(ModelMixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (IsRoleAdminOrSuperuser,)
+    filter_backends = (SearchFilter,)
+    search_fields = ('name', )
+    lookup_field = 'slug'
+
 
 class CategoryViewSet(ModelMixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (IsRoleAdminOrSuperuser,)
+    filter_backends = (SearchFilter, )
+    search_fields = ('name', )
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    pagination_class = LimitOffsetPagination
+    filter_class = filterset_class = TitleFilter
+    permission_classes = (IsRoleAdminOrSuperuser,)
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH',):
+            return TitleCreateSerializer
+        return TitleSerializer
 
 
 @api_view(['POST'])
