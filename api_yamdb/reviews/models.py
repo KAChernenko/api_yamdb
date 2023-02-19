@@ -69,7 +69,7 @@ class Category(models.Model):
 
     def __str__(self) -> str:
         return self.name
-    
+
 
 class Genre(models.Model):
     """Категории произведений."""
@@ -90,7 +90,7 @@ class Genre(models.Model):
 
     def __str__(self) -> str:
         return self.name
-    
+
 
 class Title(models.Model):
     name = models.CharField(
