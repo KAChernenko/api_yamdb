@@ -118,3 +118,33 @@ class UserSerializer(serializers.ModelSerializer):
                 'Имя пользователя "me" не разрешено.'
             )
         return value
+
+
+class ReviewsSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+    class Meta:
+        fields = (
+            'id', 'text', 'author', 'score', 'pub_date', 'title'
+        )
+        extra_kwargs = {'title': {'write_only': True}}
+    
+    def validate_score(self, value):
+        if (value < 1) or (value > 10):
+            raise serializers.ValidationError(
+                'Оценка должна принимать значеня [1..10]'
+            )
+
+class CommentsSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        fields = (
+            'id', 'text', 'author', 'pub_date', 'review'
+        )
+        extra_kwargs = {'review': {'write_only': True}}
