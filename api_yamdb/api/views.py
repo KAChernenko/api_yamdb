@@ -1,3 +1,4 @@
+from rest_framework import viewsets
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -7,9 +8,24 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import SignupSerializer, TokenSerializer, UserSerializer
+from .mixins import ModelMixinSet
+from .serializers import SignupSerializer, TokenSerializer, UserSerializer, GenreSerializer, CategorySerializer, TitleSerializer
 from api_yamdb.settings import ADMIN_EMAIL
-from reviews.models import User
+from reviews.models import User, Genre, Category, Title
+
+
+class GenreViewSet(ModelMixinSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+class CategoryViewSet(ModelMixinSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
 
 
 @api_view(['POST'])

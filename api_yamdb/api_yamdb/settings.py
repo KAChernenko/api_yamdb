@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'rest_framework_simplejwt',
     'api',
     'reviews',
@@ -89,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Использовать эту модель
 
-AUTH_USER_MODEL = 'rewiews.User'
+AUTH_USER_MODEL = 'reviews.User'
 
 # Установка способа аутентификации по токену
 
@@ -121,8 +122,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
 
