@@ -12,14 +12,43 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
-from .permissions import IsRoleAdminOrSuperuser, Title
+from .permissions import IsRoleAdminOrSuperuser, Title, Review
 from .serializers import (SignupSerializer, TokenSerializer, UserSerializer,
                           GenreSerializer, CategorySerializer, TitleSerializer,
-                          TitleCreateSerializer
+                          TitleCreateSerializer, ReviewsSerializer, CommentsSerializer
                           )
-from .permissions import IsRoleAdminOrSuperuser
+
 from api_yamdb.settings import ADMIN_EMAIL
-from reviews.models import User, Genre, Category, Title
+from reviews.models import User, Genre, Category, Title, Reviews
+
+class ReviewsViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewsSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = (Review,)
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title.reviews
+    
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentsSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = (Review,)
+    
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = get_object_or_404(title.reviews, id=self.kwargs.get('review_id'))
+        return review.comments
+    
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = get_object_or_404(title.reviews, id=self.kwargs.get('review_id'))
+        serializer.save(review=review)
 
 
 class GenreViewSet(ModelMixinSet):
