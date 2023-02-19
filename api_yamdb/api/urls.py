@@ -9,8 +9,8 @@ router_v1 = DefaultRouter()
 
 
 urlpatterns = [
-    path('auth/signup/', signup, name='signup'),
-    path('auth/token/', jwt_token, name='jwt_token'),
-    path('auth/code/', username_email, name='username_email'),
+    path('v1/auth/signup/', signup, name='signup'),
+    path('v1/auth/token/', jwt_token, name='jwt_token'),
+    path('v1/auth/code/', username_email, name='username_email'),
     path('', include(router_v1.urls)),
 ]
