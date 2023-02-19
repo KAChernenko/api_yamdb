@@ -14,7 +14,7 @@ class User(AbstractUser):
     """Модель для работы с пользователями"""
     email = models.EmailField(
         unique=True,
-        max_length=254,
+        max_length=255,
         verbose_name='Адрес электронной почты'
     )
     bio = models.TextField(
@@ -61,6 +61,7 @@ class Category(models.Model):
         verbose_name='Слаг категории'
     )
 
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -81,6 +82,7 @@ class Genre(models.Model):
         verbose_name='Слаг жанра'
     )
 
+
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
@@ -97,7 +99,7 @@ class Title(models.Model):
     year = models.IntegerField(
         validators=(validate_year, ),
         verbose_name='Год'
-    )
+        )
     description = models.TextField(
         max_length=256,
         null=True,
@@ -115,6 +117,7 @@ class Title(models.Model):
         related_name='titles',
         verbose_name='Категория',
     )
+
 
     class Meta:
         verbose_name = 'Произведение'
