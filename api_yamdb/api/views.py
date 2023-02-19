@@ -17,6 +17,7 @@ from .serializers import (SignupSerializer, TokenSerializer, UserSerializer,
                           GenreSerializer, CategorySerializer, TitleSerializer,
                           TitleCreateSerializer, AdminUserSerializer
                           )
+from .permissions import IsRoleAdminOrSuperuser
 from api_yamdb.settings import ADMIN_EMAIL
 from reviews.models import User, Genre, Category, Title
 
