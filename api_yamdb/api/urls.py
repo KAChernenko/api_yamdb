@@ -24,7 +24,6 @@ router_v1.register(
     basename='titles'
 )
 
-
 urlpatterns = [
     path('v1/auth/signup/', signup, name='signup'),
     path('v1/auth/token/', jwt_token, name='jwt_token'),
