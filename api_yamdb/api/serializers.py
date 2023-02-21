@@ -3,7 +3,7 @@ from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
 
-from reviews.models import User, Genre, Category, Title, Reviews, Comments
+from reviews.models import User, Genre, Category, Title, Review, Comment
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -118,25 +118,46 @@ class UserSerializer(serializers.ModelSerializer):
                 'Имя пользователя "me" не разрешено.'
             )
         return value
+    
+
+class NotAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role')
+        read_only_fields = ('role',)
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        slug_field='username',
         read_only=True,
-        slug_field='username'
     )
+
     class Meta:
-        model = Reviews
+        model = Review
         fields = (
-            'id', 'text', 'author', 'score', 'pub_date', 'title'
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date',
         )
-        extra_kwargs = {'title': {'write_only': True}}
-    
-    def validate_score(self, value):
-        if (value < 1) or (value > 10):
+
+    def validate(self, data):
+        if self.context['request'].method != 'POST':
+            return data
+
+        title_id = self.context['view'].kwargs.get('title_id')
+        author = self.context['request'].user
+        if Review.objects.filter(
+                author=author, title=title_id).exists():
             raise serializers.ValidationError(
-                'Оценка должна принимать значеня [1..10]'
+                'Вы уже написали отзыв к этому произведению.'
             )
+        return data
 
 class CommentsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -145,7 +166,7 @@ class CommentsSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Comments
+        model = Comment
         fields = (
             'id', 'text', 'author', 'pub_date', 'review'
         )

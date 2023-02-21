@@ -23,8 +23,9 @@ class User(AbstractUser):
         null=True,
         verbose_name='Биография'
     )
-    role = models.CharField(
+    role = models.SlugField(
         max_length=15,
+        blank=True,
         choices=ROLE,
         default='user',
         verbose_name='Роль'
@@ -147,7 +148,7 @@ class TitleGenre(models.Model):
         return f'{self.genre} {self.title}'
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -191,9 +192,9 @@ class Reviews(models.Model):
         return self.text
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     review = models.ForeignKey(
-        Reviews,
+        Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='отзыв'
