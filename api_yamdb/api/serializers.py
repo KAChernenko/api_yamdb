@@ -3,7 +3,7 @@ from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
 
-from reviews.models import User, Genre, Category, Title
+from reviews.models import User, Genre, Category, Title, Reviews, Comments
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -126,6 +126,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
         slug_field='username'
     )
     class Meta:
+        model = Reviews
         fields = (
             'id', 'text', 'author', 'score', 'pub_date', 'title'
         )
@@ -144,6 +145,7 @@ class CommentsSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = Comments
         fields = (
             'id', 'text', 'author', 'pub_date', 'review'
         )
