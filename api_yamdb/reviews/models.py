@@ -2,34 +2,63 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .validators import validate_year
+from .validators import validate_year, validate_username
 
-ROLE = (
-    ('user', 'Пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Администратор'),
-)
+USER = 'user'
+ADMIN = 'admin'
+MODERATOR = 'moderator'
+
+ROLE_CHOICES = [
+    (USER, USER),
+    (ADMIN, ADMIN),
+    (MODERATOR, MODERATOR),
+]
 
 
 class User(AbstractUser):
     """Модель для работы с пользователями"""
-    email = models.EmailField(
+    username = models.CharField(
+        validators=(validate_username,),
+        max_length=150,
         unique=True,
-        max_length=255,
-        verbose_name='Адрес электронной почты'
+        blank=False,
+        null=False
+    )
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False
+    )
+    role = models.CharField(
+        'роль',
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default=USER,
+        blank=True
     )
     bio = models.TextField(
+        'биография',
         blank=True,
+    )
+    first_name = models.CharField(
+        'имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        'фамилия',
+        max_length=150,
+        blank=True
+    )
+    confirmation_code = models.CharField(
+        'код подтверждения',
+        max_length=255,
         null=True,
-        verbose_name='Биография'
+        blank=False,
+        default='XXXX'
     )
-    role = models.SlugField(
-        max_length=15,
-        blank=True,
-        choices=ROLE,
-        default='user',
-        verbose_name='Роль'
-    )
+
 
     class Meta:
         verbose_name = 'Пользователь'

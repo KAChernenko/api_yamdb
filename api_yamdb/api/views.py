@@ -14,9 +14,9 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
-from .mixins import ModelMixinSet
+from .mixins import ModelMixinSet, CreateModelMixin
 from .permissions import (AdminModeratorAuthorPermission, AdminOnly,
-                          IsAdminUserOrReadOnly)
+                          IsAdminUserOrReadOnly, IsAdminModeratorAuthorOrReadOnly)
 from .serializers import (SignupSerializer, TokenSerializer, UserSerializer,
                           GenreSerializer, CategorySerializer, TitleSerializer,
                           AdminUserSerializer, TitleCreateSerializer, ReviewsSerializer, 
@@ -27,7 +27,7 @@ from api_yamdb.settings import ADMIN_EMAIL
 from reviews.models import User, Genre, Category, Title, Review
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(ModelMixinSet):
     """
     Доступ только у администратора
     """
@@ -96,9 +96,9 @@ class TitleViewSet(ModelMixinSet):
         return TitleSerializer
 
 
-class ReviewsViewSet(ModelMixinSet):
+class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewsSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AdminModeratorAuthorPermission,)
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -109,10 +109,10 @@ class ReviewsViewSet(ModelMixinSet):
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentsViewSet(ModelMixinSet):
+class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthenticatedOrReadOnly, AdminModeratorAuthorPermission,)
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
     
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
