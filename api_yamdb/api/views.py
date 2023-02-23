@@ -52,7 +52,12 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        if request.method == 'PUT':
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, *args, **kwargs)
 
 
 class APIGetToken(APIView):
@@ -105,12 +110,18 @@ class APISignup(APIView):
         email.send()
 
     def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        try:
+            user = User.objects.get(username=request.data.get('username'))
+            if user.email != request.data.get('email'):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            serializer = SignUpSerializer(user)
+        except User.DoesNotExist:
+            serializer = SignUpSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
         email_body = (
-            f'Доброе время суток, {user.username}.'
-            f'\nКод подтверждения для доступа к API: {user.confirmation_code}'
+            f'Доброе время суток, {user.username}.\n'
+            f'Код подтверждения для доступа к API: {user.confirmation_code}'
         )
         data = {
             'email_body': email_body,
