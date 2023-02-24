@@ -3,7 +3,7 @@ import csv
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
+from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
@@ -90,7 +90,7 @@ class Command(BaseCommand):
                 id = row6['id']
                 title_id = row6['title_id']
                 genre_id = row6['genre_id']
-                genre_titles = TitleGenre(
+                genre_titles = Title(
                     id=id,
                     title_id=title_id,
                     genre_id=genre_id,
