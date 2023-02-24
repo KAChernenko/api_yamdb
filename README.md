@@ -59,7 +59,7 @@ python manage.py createsuperuser
 Запускаем проект:
 
 ```bash
-python manage.py runserver localhost:80
+python manage.py runserver
 ```
 
 ### Примеры работы с API для всех пользователей
