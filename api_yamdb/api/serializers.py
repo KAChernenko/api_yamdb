@@ -46,7 +46,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        exclude = ('id', )
+        fields = ('name', 'slug')
         model = Category
         lookup_field = 'slug'
 
@@ -54,7 +54,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        exclude = ('id', )
+        fields = ('name', 'slug')
         model = Genre
         lookup_field = 'slug'
 
@@ -68,7 +68,15 @@ class TitleReadSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category'
+        )
         model = Title
 
 
@@ -84,7 +92,14 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category'
+        )
         model = Title
 
 
@@ -97,11 +112,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-
-    def validate_score(self, value):
-        if 0 > value > 10:
-            raise serializers.ValidationError('Оценка по 10-бальной шкале!')
-        return value
 
     def validate(self, data):
         request = self.context['request']
@@ -116,7 +126,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'title', 'author', 'score', 'pub_date', 'text')
         model = Review
 
 
@@ -131,5 +141,5 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date', 'review')
         model = Comment

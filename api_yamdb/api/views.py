@@ -9,14 +9,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from api.filters import TitleFilter
-from .mixins import ModelMixinSet
-from .permissions import (AdminModeratorAuthorPermission, AdminOnly,
+from api.mixins import ModelMixinSet
+from api.permissions import (AdminModeratorAuthorPermission, AdminOnly,
                           IsAdminUserOrReadOnly)
-from .serializers import (CategorySerializer, CommentSerializer,
+from api.serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           NotAdminSerializer, ReviewSerializer,
                           SignUpSerializer, TitleReadSerializer,
@@ -34,9 +34,9 @@ class UsersViewSet(viewsets.ModelViewSet):
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
-        permission_classes=(IsAuthenticated,),
-        url_path='me')
-    def get_current_user_info(self, request):
+        permission_classes=(IsAuthenticated,)
+        )
+    def me(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
             if request.user.is_admin:
@@ -73,14 +73,11 @@ class APIGetToken(APIView):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        try:
-            user = User.objects.get(username=data['username'])
-        except User.DoesNotExist:
-            return Response(
-                {'username': 'Пользователь не найден!'},
-                status=status.HTTP_404_NOT_FOUND)
+        user = get_object_or_404(
+            User,
+            username=data['username'])
         if data.get('confirmation_code') == user.confirmation_code:
-            token = RefreshToken.for_user(user).access_token
+            token = AccessToken.for_user(user).access_token
             return Response({'token': str(token)},
                             status=status.HTTP_201_CREATED)
         return Response(
@@ -101,13 +98,22 @@ class APISignup(APIView):
     permission_classes = (permissions.AllowAny,)
 
     @staticmethod
-    def send_email(data):
+    def send_email(user):
+        email_body = (
+            f'Доброе время суток, {user.username}.\n'
+            f'Код подтверждения для доступа к API: {user.confirmation_code}'
+        )
+        data = {
+            'email_body': email_body,
+            'to_email': user.email,
+            'email_subject': 'Код подтверждения для доступа к API!'
+        }
         email = EmailMessage(
             subject=data['email_subject'],
             body=data['email_body'],
             to=[data['to_email']]
         )
-        email.send()
+        email.send(data)
 
     def post(self, request):
         try:
@@ -119,16 +125,7 @@ class APISignup(APIView):
             serializer = SignUpSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
-        email_body = (
-            f'Доброе время суток, {user.username}.\n'
-            f'Код подтверждения для доступа к API: {user.confirmation_code}'
-        )
-        data = {
-            'email_body': email_body,
-            'to_email': user.email,
-            'email_subject': 'Код подтверждения для доступа к API!'
-        }
-        self.send_email(data)
+        self.send_email(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
