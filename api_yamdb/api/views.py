@@ -1,3 +1,12 @@
+from api.filters import TitleFilter
+from api.mixins import ModelMixinSet
+from api.permissions import (AdminModeratorAuthorPermission, AdminOnly,
+                             IsAdminUserOrReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, GetTokenSerializer,
+                             NotAdminSerializer, ReviewSerializer,
+                             SignUpSerializer, TitleReadSerializer,
+                             TitleWriteSerializer, UsersSerializer)
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -10,17 +19,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-
 from reviews.models import Category, Genre, Review, Title, User
-from api.filters import TitleFilter
-from api.mixins import ModelMixinSet
-from api.permissions import (AdminModeratorAuthorPermission, AdminOnly,
-                          IsAdminUserOrReadOnly)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, GetTokenSerializer,
-                          NotAdminSerializer, ReviewSerializer,
-                          SignUpSerializer, TitleReadSerializer,
-                          TitleWriteSerializer, UsersSerializer)
+from django.core.exceptions import ValidationError
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -30,12 +30,15 @@ class UsersViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     filter_backends = (SearchFilter, )
     search_fields = ('username', )
+    http_method_names = [m for m
+                         in viewsets.ModelViewSet.http_method_names
+                         if m not in ['put']]
 
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
         permission_classes=(IsAuthenticated,)
-        )
+    )
     def me(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
@@ -53,11 +56,6 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        if request.method == 'PUT':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().update(request, *args, **kwargs)
 
 
 class APIGetToken(APIView):
