@@ -20,7 +20,6 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Genre, Review, Title, User
-from django.core.exceptions import ValidationError
 
 
 class UsersViewSet(viewsets.ModelViewSet):

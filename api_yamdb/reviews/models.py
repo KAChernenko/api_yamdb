@@ -83,11 +83,9 @@ class User(AbstractUser):
 
 
 @receiver(post_save, sender=User)
-def post_save(sender, instance, created, **kwargs):
+def post_save(instance, created, **kwargs):
     if created:
-        confirmation_code = default_token_generator.make_token(
-            instance
-        )
+        default_token_generator.make_token(instance)
         instance.save()
 
 
@@ -165,6 +163,14 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f'{self.genre} {self.title}'
 
 
 class Review(models.Model):
