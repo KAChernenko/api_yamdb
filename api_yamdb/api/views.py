@@ -13,12 +13,12 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
 from .permissions import (AdminModeratorAuthorPermission, AdminOnly,
-                             IsAdminUserOrReadOnly)
+                          IsAdminUserOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, GetTokenSerializer,
-                             NotAdminSerializer, ReviewSerializer,
-                             SignUpSerializer, TitleReadSerializer,
-                             TitleWriteSerializer, UsersSerializer)
+                          GenreSerializer, GetTokenSerializer,
+                          NotAdminSerializer, ReviewSerializer,
+                          SignUpSerializer, TitleReadSerializer,
+                          TitleWriteSerializer, UsersSerializer)
 from .utils import generate_and_send_code_to_email
 
 from reviews.models import Category, Genre, Review, Title, User
@@ -131,6 +131,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @api_view(['POST'])
 def signup_new_user(request):
     username = request.data.get('username')
@@ -156,6 +157,7 @@ def signup_new_user(request):
     return Response(
         'Почта указана неверно!', status=status.HTTP_400_BAD_REQUEST
     )
+
 
 @api_view(['POST'])
 def get_token(request):
