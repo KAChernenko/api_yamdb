@@ -53,13 +53,6 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
-    confirmation_code = models.CharField(
-        'код подтверждения',
-        max_length=255,
-        null=True,
-        blank=False,
-        default='XXXX'
-    )
 
     @property
     def is_user(self):
