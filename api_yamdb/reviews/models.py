@@ -75,13 +75,6 @@ class User(AbstractUser):
         return self.username
 
 
-@receiver(post_save, sender=User)
-def post_save(instance, created, **kwargs):
-    if created:
-        default_token_generator.make_token(instance)
-        instance.save()
-
-
 class Category(models.Model):
     name = models.CharField(
         'имя категории',
